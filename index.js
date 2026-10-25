@@ -36,7 +36,7 @@ import { Overlay } from './overlay.js';
  *    we'll try it! and if that doesn't work, we'll try to refresh it.
  *    If the refresh has been revoked, then we remove both from localStorage.
  */
-const CLIENT_ID = 'e5461ba2-5cd4-4a14-ac80-9be4c017b685'; // onedrive microsoft ID for my app, "GEOPIC", used to sign into Onedrive
+const CLIENT_ID = '3be8e377-e976-469b-9947-fdb702671b46'; // onedrive microsoft ID for my app, "GEOPIC", used to sign into Onedrive
 localStorage.setItem('client_id', CLIENT_ID);
 // Following are initialized in onBodyLoad()
 let MAP;
@@ -66,18 +66,6 @@ export async function onBodyLoad() {
     const state = params.get('state');
     if (code || state)
         window.history.replaceState(null, '', window.location.pathname);
-    MAP = document.getElementById("map").innerMap;
-    MARKER_POOL = new MarkerPool(MAP, await google.maps.importLibrary("marker"));
-    IMG_POOL = new ImgPool(document.getElementById('thumbnails-grid'));
-    OVERLAY = new Overlay();
-    HISTOGRAM = new Histogram(document.getElementById("histogram-container"));
-    TEXT_FILTER = document.getElementById('text-filter');
-    // Set up map, thumbnails, histogram
-    g_geoData = await dbGet();
-    if (g_geoData && g_geoData.id === 'sample-data' && (code || localStorage.getItem('access_token')))
-        g_geoData = undefined;
-    await installHandlers();
-    showCurrentGeodata();
     // Process OAuth code if present
     if (code) {
         const code_verifier = sessionStorage.getItem('code_verifier');
@@ -91,6 +79,18 @@ export async function onBodyLoad() {
             localStorage.setItem('refresh_token', r.refreshToken);
         }
     }
+    MAP = document.getElementById("map").innerMap;
+    MARKER_POOL = new MarkerPool(MAP, await google.maps.importLibrary("marker"));
+    IMG_POOL = new ImgPool(document.getElementById('thumbnails-grid'));
+    OVERLAY = new Overlay();
+    HISTOGRAM = new Histogram(document.getElementById("histogram-container"));
+    TEXT_FILTER = document.getElementById('text-filter');
+    // Set up map, thumbnails, histogram
+    g_geoData = await dbGet();
+    if (g_geoData && g_geoData.id === 'sample-data' && (code || localStorage.getItem('access_token')))
+        g_geoData = undefined;
+    await installHandlers();
+    showCurrentGeodata();
     // Attempt to get Pictures metadata (so validating access token) and validate local cache. Outcomes:
     // - (!accessToken, !geoData, !status) -- user is signed out, no geo data
     // - (!accessToken, geoData, !status) -- user is signed out, geo data from local, we don't know if it's fresh or stale
