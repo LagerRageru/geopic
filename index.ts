@@ -73,19 +73,6 @@ export async function onBodyLoad(): Promise<void> {
     const state = params.get('state');
     if (code || state) window.history.replaceState(null, '', window.location.pathname);
 
-    MAP = (document.getElementById("map")! as google.maps.MapElement).innerMap;
-    MARKER_POOL = new MarkerPool(MAP, await google.maps.importLibrary("marker") as google.maps.MarkerLibrary);
-    IMG_POOL = new ImgPool(document.getElementById('thumbnails-grid')!);
-    OVERLAY = new Overlay();
-    HISTOGRAM = new Histogram(document.getElementById("histogram-container")!);
-    TEXT_FILTER = document.getElementById('text-filter') as HTMLInputElement;
-
-    // Set up map, thumbnails, histogram
-    g_geoData = await dbGet<GeoData>();
-    if (g_geoData && g_geoData.id === 'sample-data' && (code || localStorage.getItem('access_token'))) g_geoData = undefined;
-    await installHandlers();
-    showCurrentGeodata();
-
     // Process OAuth code if present
     if (code) {
         const code_verifier = sessionStorage.getItem('code_verifier')!;
@@ -98,6 +85,19 @@ export async function onBodyLoad(): Promise<void> {
             localStorage.setItem('refresh_token', r.refreshToken);
         }
     }
+
+    MAP = (document.getElementById("map")! as google.maps.MapElement).innerMap;
+    MARKER_POOL = new MarkerPool(MAP, await google.maps.importLibrary("marker") as google.maps.MarkerLibrary);
+    IMG_POOL = new ImgPool(document.getElementById('thumbnails-grid')!);
+    OVERLAY = new Overlay();
+    HISTOGRAM = new Histogram(document.getElementById("histogram-container")!);
+    TEXT_FILTER = document.getElementById('text-filter') as HTMLInputElement;
+
+    // Set up map, thumbnails, histogram
+    g_geoData = await dbGet<GeoData>();
+    if (g_geoData && g_geoData.id === 'sample-data' && (code || localStorage.getItem('access_token'))) g_geoData = undefined;
+    await installHandlers();
+    showCurrentGeodata();
 
     // Attempt to get Pictures metadata (so validating access token) and validate local cache. Outcomes:
     // - (!accessToken, !geoData, !status) -- user is signed out, no geo data
